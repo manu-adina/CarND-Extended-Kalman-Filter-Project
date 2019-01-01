@@ -14,6 +14,8 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   /**
    * TODO: Calculate the RMSE here.
    */
+
+	// Maybe it's done?
 	VectorXd rmse(4);
 	rmse << 0, 0, 0, 0;
 	if(estimations.size() != ground_truth.size() || estimations.size() == 0) {
@@ -40,6 +42,8 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
    * TODO:
    * Calculate a Jacobian here.
    */
+
+  	// Maybe it's done?
 	MatrixXd Hj(3,4);
 
 	float px = x_state(0);
