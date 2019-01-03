@@ -81,7 +81,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
       // Converting from polar to cartesian X and Y coordinates
       double x = rho * cos(phi);
+      if(x < 0.0001) x = 0.0001;
       double y = rho * sin(phi);
+      if(y < 0.0001) y = 0.0001;
 
       double vx = rho_dot * cos(phi);
       double vy = rho_dot * sin(phi);
