@@ -4,11 +4,6 @@
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
-/* 
- * Please note that the Eigen library does not initialize 
- *   VectorXd or MatrixXd objects with zeros upon creation.
- */
-
 KalmanFilter::KalmanFilter() {}
 
 KalmanFilter::~KalmanFilter() {}
@@ -30,6 +25,7 @@ void KalmanFilter::Predict() {
 }
 
 void KalmanFilter::Update(const VectorXd &z) {
+	// From Udacity's material on Kalman Filters.
 	VectorXd y = z - H_ * x_;
 	MatrixXd Ht = H_.transpose();
 	MatrixXd S = H_ * P_ * Ht + R_;
@@ -44,7 +40,28 @@ void KalmanFilter::Update(const VectorXd &z) {
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
  	
-	VectorXd y = z - H_ * x_;
+	// To perform the measurement update, need to convert X, Y to Cartesian measurement space.
+	double px = x_(0);
+	double py = x_(1);
+	double vx = x_(2);
+	double vy = x_(3);
+
+	// From Udacity's material on Radar measurements.
+	double rho = sqrt(px*px + py*py);
+	double phi = atan2(py , px);
+	double rho_dot = (px*vx + py*vy) / rho;
+
+	VectorXd H_conv = VectorXd(3);
+	H_conv << rho, phi, rho_dot;
+
+	// Difference between the predicted and measured.
+	VectorXd y = z - H_conv;
+
+	// Convert to 0-2pi domain.
+	if(y(1) > M_PI) y(1) -= 2*M_PI;
+	if(y(1) < -M_PI) y(1) += 2*M_PI;
+
+	// From Udacity's material on Kalman Filters.
 	MatrixXd Ht = H_.transpose();
 	MatrixXd S = H_ * P_ * Ht + R_;
 	MatrixXd Si = S.inverse();

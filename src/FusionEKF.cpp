@@ -63,21 +63,17 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     
     // LIDAR measurements
     if(measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
-      cout << "EKF - Laser" << endl;
       ekf_.x_ << measurement_pack.raw_measurements_[0], measurement_pack.raw_measurements_[1], 0, 0;
     // RADAR measurements
     } else if(measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       // Extracting measurements from the pack.
-      cout << "EKF - Radar" << endl;
       double rho = measurement_pack.raw_measurements_[0];
       double phi = measurement_pack.raw_measurements_[1];
       double rho_dot = measurement_pack.raw_measurements_[2];
 
       // Converting from polar to cartesian X and Y coordinates
       double x = rho * cos(phi);
-      if(x < 0.0001) x = 0.0001;
       double y = rho * sin(phi);
-      if(y < 0.0001) y = 0.0001;
 
       double vx = rho_dot * cos(phi);
       double vy = rho_dot * sin(phi);
@@ -115,14 +111,13 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   double dt_2 = dt * dt;
   double dt_3 = dt_2 * dt;
   double dt_4 = dt_3 * dt;
-  double dt_4_4 = dt_4 / 4;
-  double dt_3_2 = dt_3 / 2;
 
+  // From Udacity's material on Process Covariance Matrix.
   ekf_.Q_ = MatrixXd(4,4);
-  ekf_.Q_ << dt_4_4 * noise_ax, 0, dt_3_2 * noise_ax, 0,
-             0, dt_4_4 * noise_ay, 0, dt_3_2 * noise_ay,
-             dt_3_2 * noise_ax, 0, dt_2 * noise_ax, 0,
-             0, dt_3_2 * noise_ay, 0, dt_2 * noise_ay;
+  ekf_.Q_ << dt_4/4 * noise_ax, 0, dt_3/2 * noise_ax, 0,
+             0, dt_4/4 * noise_ay, 0, dt_3/2 * noise_ay,
+             dt_3/2 * noise_ax, 0, dt_2 * noise_ax, 0,
+             0, dt_3/2 * noise_ay, 0, dt_2 * noise_ay;
 
   ekf_.Predict();
 
